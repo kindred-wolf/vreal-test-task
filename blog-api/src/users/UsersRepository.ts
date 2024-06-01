@@ -28,8 +28,9 @@ export class UsersRepository implements IUsersRepository {
   }
 
   async findById(id: string): Promise<UserEntity> {
-    const { password, ...result } = await this.usersRepository.findOne({where: {id: id}})
-    return result
+    // const { password, ...result } = await this.usersRepository.findOne({where: {id: id}})
+    // return result
+    return await this.usersRepository.findOne({where: {id: id}})
   }
 
   async find() {
