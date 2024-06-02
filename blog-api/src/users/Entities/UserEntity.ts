@@ -1,10 +1,5 @@
 import { PostEntity } from 'src/posts/Entities/PostEntity'
-import {
-  Column,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn
-} from 'typeorm'
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 
 @Entity('users')
 export class UserEntity {
@@ -12,11 +7,11 @@ export class UserEntity {
   public id?: string
 
   @Column({ unique: true })
-  public username: string
+  public email: string
 
   @Column()
   public password: string
 
-  @OneToMany(() => PostEntity, post => post.user)
-  posts: PostEntity[];
+  @OneToMany(() => PostEntity, (post) => post.user)
+  posts: PostEntity[]
 }

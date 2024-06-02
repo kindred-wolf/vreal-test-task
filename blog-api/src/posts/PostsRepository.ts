@@ -28,6 +28,11 @@ export class PostsRepository {
     return newPost
   }
 
+  async updatePost(id: number, post: PostDto): Promise<PostEntity> {
+    await this.postsRepository.update(id, post)
+    return await this.getPostByID(id)
+  }
+
   async deletePost(id: number): Promise<DeleteResult> {
     return await this.postsRepository.delete({
       id: id,

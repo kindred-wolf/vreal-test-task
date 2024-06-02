@@ -1,4 +1,4 @@
-import { UserEntity } from "src/users/Entity/UserEntity"
+import { UserEntity } from "src/users/Entities/UserEntity"
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
 
 @Entity('posts')

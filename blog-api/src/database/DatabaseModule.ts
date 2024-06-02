@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { UserEntity } from 'src/users/Entity/UserEntity'
+import { UserEntity } from 'src/users/Entities/UserEntity'
 import { PostEntity } from 'src/posts/Entities/PostEntity'
 
 @Module({

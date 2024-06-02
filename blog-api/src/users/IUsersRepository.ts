@@ -1,13 +1,13 @@
-import { UserEntity } from './Entity/UserEntity'
-import { UserDataDto } from './Dto/UserDataDto'
+import { UserEntity } from './Entities/UserEntity'
+import { CreateUserDataDto } from './Dto/UserDataDto'
 
 export interface IUsersRepository {
 
-  save(userData: UserDataDto) : Promise<UserEntity>
+  save(userData: CreateUserDataDto) : Promise<UserEntity>
 
-  create(userData: UserDataDto) : UserEntity
+  create(userData: CreateUserDataDto) : UserEntity
 
-  findByUsername(username: string) : Promise<UserEntity>
+  findByEmail(username: string) : Promise<UserEntity>
 
   find()
 

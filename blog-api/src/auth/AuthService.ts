@@ -1,17 +1,20 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
-import { UserDataDto } from '../users/Dto/UserDataDto'
-import { UserEntity } from '../users/Entity/UserEntity'
+import { CreateUserDataDto } from '../users/Dto/UserDataDto'
+import { UserEntity } from '../users/Entities/UserEntity'
 import { UsersRepository } from '../users/UsersRepository'
 import * as bcrypt from 'bcrypt';
 import PostgresErrorCode from '../database/PostgresErrorCode.enum';
+import { JwtPayload } from './JwtPayloadInterface'
+import { JwtService } from '@nestjs/jwt'
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly authRepository: UsersRepository,
+    private readonly jwtService: JwtService,
   ) {}
 
-  async registerUser(userData: UserDataDto) {
+  async registerUser(userData: CreateUserDataDto) {
     const hashedPassword = await bcrypt.hash(userData.password, 10)
     try {
       var newUser = this.authRepository.create({
@@ -35,20 +38,42 @@ export class AuthService {
     }
   }
 
-  async authenticateUser(userData: UserDataDto): Promise<UserEntity> {
-    var user = await this.authRepository.findByUsername(
-      userData.username,
+  async authenticateUser(payload: JwtPayload): Promise<UserEntity> {
+    var user = await this.authRepository.findByEmail(
+      payload.email,
     )
 
     if (!user) {
+      console.log("No user with such email")
       return null
     }
 
-    if (bcrypt.compare(userData.password, user.password)) {
+    if (bcrypt.compare(payload.password, user.password)) {
       console.log('validated')
       return user
     }
 
     console.log('Wrong password')
+  }
+  
+  async login(user: CreateUserDataDto) {
+    var userDB = await this.authRepository.findByEmail(
+      user.email,
+    )
+
+    if (!user) {
+      console.log("No user with such email")
+      return null
+    }
+
+    if (!bcrypt.compare(user.password, userDB.password)) {
+      console.log('Passwords don\'t match')
+      return null
+    }
+
+    const payload: JwtPayload = { email: user.email, password: user.password };
+    return {
+      accessToken: this.jwtService.sign(payload),
+    };
   }
 }

@@ -1,4 +1,5 @@
-export class CreateUserDataDto{
+export interface JwtPayload {
     email: string
     password: string
-}
+  }
+  
