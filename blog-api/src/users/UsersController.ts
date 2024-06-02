@@ -16,6 +16,7 @@ import { UserRole } from './Entities/UserRoleEnum'
 import { RolesGuard } from 'src/common/guards/RolesGuard'
 import { CreateUserDataDto } from './Dto/CreateUserDataDto'
 import { UpdateUserDataDto } from './Dto/UpdateUserDataDto'
+import { ApiBody } from '@nestjs/swagger'
 
 @Controller('users')
 export class UsersController {
@@ -41,6 +42,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.USER, UserRole.ADMIN)
   @Put(':id')
+  @ApiBody({ type: [UpdateUserDataDto] })
   async updateUser(
     @Param('id') id: string,
     @Request() req,

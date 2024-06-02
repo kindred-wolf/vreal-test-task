@@ -18,6 +18,7 @@ import { JwtAuthGuard } from 'src/common/guards/JwtAuthGuard'
 import { RolesGuard } from 'src/common/guards/RolesGuard'
 import { UserRole } from 'src/users/Entities/UserRoleEnum'
 import { Roles } from 'src/common/decorators/RolesDecorator'
+import { ApiBody } from '@nestjs/swagger'
 
 @Controller('posts')
 export class PostsController {
@@ -44,6 +45,7 @@ export class PostsController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
+  @ApiBody({ type: [PostDto] })
   createPost(@Body() post: PostDto, @Request() req) {
     const user = req.user
     return this.postService.createPost(post, user)
@@ -52,6 +54,7 @@ export class PostsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.USER, UserRole.ADMIN)
   @Put('/:id')
+  @ApiBody({ type: [PostDto] })
   async updatePost(
     @Param('id') id: number,
     @Body() post: PostDto,
