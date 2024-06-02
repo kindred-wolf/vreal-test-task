@@ -9,4 +9,6 @@ Swagger could be found here: https://app.swaggerhub.com/apis/kindred-wolf/blog-a
 3. Use command "npm run start" to run app
 4. Test it
 
-This task took me about 6-8 hours, because I've met several strange problems.
+This task took me about 6-8 hours, because I've met several strange problems.<br>
+
+I didn't deploy the app to any cloud service, cause it would take some more hours to set everything up. If its necessary - I'll figure it out :)
