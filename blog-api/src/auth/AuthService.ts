@@ -28,7 +28,7 @@ export class AuthService {
         ...userData,
         password: hashedPassword,
       })
-      
+
       await this.authRepository.save(newUser)
 
       const payload: JwtPayload = {

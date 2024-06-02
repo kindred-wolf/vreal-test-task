@@ -29,7 +29,11 @@ export class UsersRepository implements IUsersRepository {
   }
 
   async findById(id: string): Promise<UserEntity> {
-    return await this.usersRepository.createQueryBuilder('user').leftJoinAndSelect('user.posts', 'posts').where('user.id = :id', {id}).getOne()
+    return await this.usersRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.posts', 'posts')
+      .where('user.id = :id', { id })
+      .getOne()
   }
 
   async find() {

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module } from '@nestjs/common'
 import { PostsModule } from './posts/PostsModule'
 import { ConfigModule } from '@nestjs/config'
 import { DatabaseModule } from './database/DatabaseModule'
@@ -7,7 +7,7 @@ import { UsersModule } from './users/UsersModule'
 
 @Module({
   imports: [
-    PostsModule, 
+    PostsModule,
     AuthModule,
     UsersModule,
     ConfigModule.forRoot(),

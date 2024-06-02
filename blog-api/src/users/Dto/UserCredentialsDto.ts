@@ -1,4 +1,4 @@
-export class UserCredentialsDto{
-    email: string
-    password: string
+export class UserCredentialsDto {
+  email: string
+  password: string
 }

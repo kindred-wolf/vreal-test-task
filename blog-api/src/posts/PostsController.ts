@@ -34,8 +34,8 @@ export class PostsController {
   @Get('/:id')
   async getPostByID(@Param('id') id) {
     const post = await this.postService.getPostByID(id)
-    
-    if(!post){
+
+    if (!post) {
       throw new NotFoundException()
     }
 
@@ -52,9 +52,13 @@ export class PostsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.USER, UserRole.ADMIN)
   @Put('/:id')
-  async updatePost(@Param('id') id: number, @Body() post: PostDto, @Request() req){
-    if(id != req.user.id && req.user.role !== UserRole.ADMIN){
-        throw new ForbiddenException()
+  async updatePost(
+    @Param('id') id: number,
+    @Body() post: PostDto,
+    @Request() req,
+  ) {
+    if (id != req.user.id && req.user.role !== UserRole.ADMIN) {
+      throw new ForbiddenException()
     }
     return await this.postService.updatePost(id, post)
   }
@@ -62,9 +66,9 @@ export class PostsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.USER, UserRole.ADMIN)
   @Delete('/:id')
-  async deletePost(@Param('id') id: number, @Request() req){
-    if(id != req.user.id && req.user.role !== UserRole.ADMIN){
-        throw new ForbiddenException()
+  async deletePost(@Param('id') id: number, @Request() req) {
+    if (id != req.user.id && req.user.role !== UserRole.ADMIN) {
+      throw new ForbiddenException()
     }
     return await this.postService.deletePost(id)
   }

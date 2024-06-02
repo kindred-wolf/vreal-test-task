@@ -9,15 +9,15 @@ export class UserEntity {
 
   @Column({ unique: true })
   public email: string
-  
+
   @Column()
   public username: string
 
   @Column()
   public password: string
-  
+
   @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
-  role: UserRole;
+  role: UserRole
 
   @OneToMany(() => PostEntity, (post) => post.user)
   posts: PostEntity[]

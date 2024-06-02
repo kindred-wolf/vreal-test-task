@@ -13,7 +13,8 @@ import { JwtStrategy } from './JwtStrategy'
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
-      secret: '1439ab2ad807950ea914ebf13b973f84bb00be7e1606cb65ce02cc0f4b93feb9',
+      secret:
+        '1439ab2ad807950ea914ebf13b973f84bb00be7e1606cb65ce02cc0f4b93feb9',
     }),
     TypeOrmModule.forFeature([UserEntity]),
     CreateUserDataDto,
