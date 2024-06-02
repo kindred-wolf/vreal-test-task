@@ -1,8 +1,9 @@
 import { InjectRepository } from '@nestjs/typeorm'
 import { DeleteResult, Repository } from 'typeorm'
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { PostEntity } from './Entities/PostEntity'
 import { PostDto } from './DTO/PostDto'
+import { UserEntity } from 'src/users/Entities/UserEntity'
 
 @Injectable()
 export class PostsRepository {
@@ -15,15 +16,21 @@ export class PostsRepository {
     return await this.postsRepository.find()
   }
 
-  async getPostByID(id: number): Promise<PostEntity | undefined> {
+  async getAllUserPosts(userId: number): Promise<PostEntity[] | undefined> {
+    return await this.postsRepository.find({where: { user: { id: userId }}})
+  }
+
+  async getPostByID(id: number): Promise<PostEntity> {
     const post = await this.postsRepository.findOne({
       where: { id: id },
     })
-    return post || null
+    
+    return post
   }
 
-  async createPost(post: PostDto): Promise<PostEntity> {
+  async createPost(post: PostDto, user: UserEntity): Promise<PostEntity> {
     const newPost = await this.postsRepository.create(post)
+    newPost.user = user
     await this.postsRepository.save(newPost)
     return newPost
   }

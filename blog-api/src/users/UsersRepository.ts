@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import { Repository } from 'typeorm'
 import { UserEntity } from './Entities/UserEntity'
-import { CreateUserDataDto } from './Dto/UserDataDto'
+import { CreateUserDataDto } from './Dto/CreateUserDataDto'
 import { IUsersRepository } from './IUsersRepository'
 import { InjectRepository } from '@nestjs/typeorm'
+import { UpdateUserDataDto } from './Dto/UpdateUserDataDto'
 
 @Injectable()
 export class UsersRepository implements IUsersRepository {
@@ -21,23 +22,25 @@ export class UsersRepository implements IUsersRepository {
     return newUser
   }
 
-  async findByEmail(username: string): Promise<UserEntity> {
+  async findByEmail(email: string): Promise<UserEntity> {
     return await this.usersRepository.findOne({
-      where: { email: username },
+      where: { email: email },
     })
   }
 
   async findById(id: string): Promise<UserEntity> {
-    // const { password, ...result } = await this.usersRepository.findOne({where: {id: id}})
-    // return result
-    return await this.usersRepository.findOne({where: {id: id}})
+    return await this.usersRepository.createQueryBuilder('user').leftJoinAndSelect('user.posts', 'posts').where('user.id = :id', {id}).getOne()
   }
 
   async find() {
     return await this.usersRepository.find()
   }
 
-  async deleteById(id: number){
-    await this.usersRepository.delete(id)
+  async updateById(id: string, userData: UpdateUserDataDto) {
+    return await this.usersRepository.update(id, userData)
+  }
+
+  async deleteById(id: number) {
+    return await this.usersRepository.delete(id)
   }
 }

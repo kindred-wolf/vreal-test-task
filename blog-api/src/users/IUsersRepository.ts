@@ -1,5 +1,5 @@
 import { UserEntity } from './Entities/UserEntity'
-import { CreateUserDataDto } from './Dto/UserDataDto'
+import { CreateUserDataDto } from './Dto/CreateUserDataDto'
 
 export interface IUsersRepository {
 
