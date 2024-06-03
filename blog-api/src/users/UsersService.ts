@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common'
 import { UsersRepository } from './UsersRepository'
-import { CreateUserDataDto } from './Dto/CreateUserDataDto'
 import { UpdateUserDataDto } from './Dto/UpdateUserDataDto'
-import * as bcrypt from 'bcryptjs'
+import * as bcrypt from 'bcrypt'
+
+const SALT_ROUNDS = 10
 
 @Injectable()
 export class UsersService {
@@ -17,9 +18,12 @@ export class UsersService {
   }
 
   async updateUser(id: string, userData: UpdateUserDataDto) {
-    const saltRound = 10
-    userData.password = await bcrypt.hash(userData.password, saltRound)
-    return await this.usersRepository.updateById(id, userData)
+    const hashedUserData = new UpdateUserDataDto({
+      ...userData,
+      password: await bcrypt.hash(userData.password, SALT_ROUNDS),
+    })
+
+    return await this.usersRepository.updateById(id, hashedUserData)
   }
 
   async deleteUserById(id: number) {

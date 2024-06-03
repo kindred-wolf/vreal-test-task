@@ -11,7 +11,7 @@ import * as bcrypt from 'bcrypt'
 import PostgresErrorCode from '../database/PostgresErrorCode.enum'
 import { JwtPayload } from './JwtPayloadInterface'
 import { JwtService } from '@nestjs/jwt'
-import { UserCredentialsDto } from 'src/users/Dto/UserCredentialsDto'
+import { UserCredentialsDto } from 'users/Dto/UserCredentialsDto'
 
 @Injectable()
 export class AuthService {
@@ -24,7 +24,7 @@ export class AuthService {
     const saltRounds = 10
     const hashedPassword = await bcrypt.hash(userData.password, saltRounds)
     try {
-      var newUser = this.authRepository.create({
+      const newUser = this.authRepository.create({
         ...userData,
         password: hashedPassword,
       })
@@ -33,13 +33,13 @@ export class AuthService {
 
       const payload: JwtPayload = {
         email: newUser.email,
-        password: newUser.password,
       }
+
       return {
         accessToken: this.jwtService.sign(payload),
       }
     } catch (error) {
-      if (error?.code === PostgresErrorCode.UniqueViolation) {
+      if (error?.code === PostgresErrorCode.UNIQUE_VIOLATION) {
         throw new HttpException(
           'User with that email already exists',
           HttpStatus.BAD_REQUEST,
@@ -52,37 +52,29 @@ export class AuthService {
     }
   }
 
-  async authenticateUser(payload: JwtPayload): Promise<UserEntity> {
-    var user = await this.authRepository.findByEmail(payload.email)
+  async authenticateUser(payload: JwtPayload): Promise<UserEntity | null> {
+    const user = await this.authRepository.findByEmail(payload.email)
 
     if (!user) {
-      console.log('No user with such email')
       return null
     }
 
-    if (await bcrypt.compare(payload.password, user.password)) {
-      console.log('validated')
-      return user
-    }
-
-    console.log('Wrong password')
+    return user
   }
 
   async login(user: UserCredentialsDto) {
-    var userDB = await this.authRepository.findByEmail(user.email)
+    const userDB = await this.authRepository.findByEmail(user.email)
 
     if (!userDB) {
-      console.log('No user with such email')
       throw new BadRequestException()
     }
 
     const compare = await bcrypt.compare(user.password, userDB.password)
     if (!compare) {
-      console.log("Passwords don't match")
       throw new BadRequestException()
     }
 
-    const payload: JwtPayload = { email: user.email, password: user.password }
+    const payload: JwtPayload = { email: user.email }
     return {
       accessToken: this.jwtService.sign(payload),
     }

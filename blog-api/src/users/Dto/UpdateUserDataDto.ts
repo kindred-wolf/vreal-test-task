@@ -1,6 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger'
 
 export class UpdateUserDataDto {
+  constructor(updateUser: UpdateUserDataDto) {
+    Object.assign(this, updateUser)
+  }
+
   @ApiProperty({
     type: [String],
   })

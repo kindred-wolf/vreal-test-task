@@ -3,7 +3,7 @@ import { Reflector } from '@nestjs/core'
 import { UserRole } from 'users/Entities/UserRoleEnum'
 
 @Injectable()
-export class RolesGuard implements CanActivate {
+export class OwnUserGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {

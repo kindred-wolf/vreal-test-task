@@ -1,3 +1,4 @@
+import { ApiBody } from '@nestjs/swagger'
 import {
   Body,
   Controller,
@@ -11,14 +12,16 @@ import {
   Request,
   Query,
   ForbiddenException,
+  HttpCode,
+  BadRequestException,
 } from '@nestjs/common'
+
+import { JwtAuthGuard } from 'common/guards/JwtAuthGuard'
+
 import { PostsService } from './PostsService'
 import { PostDto } from './DTO/PostDto'
-import { JwtAuthGuard } from 'src/common/guards/JwtAuthGuard'
-import { RolesGuard } from 'src/common/guards/RolesGuard'
-import { UserRole } from 'src/users/Entities/UserRoleEnum'
-import { Roles } from 'src/common/decorators/RolesDecorator'
-import { ApiBody } from '@nestjs/swagger'
+import { verifyOwnUser } from 'common/ownUserVerifier'
+import { BaseUserEntity } from 'users/Entities/UserEntity'
 
 @Controller('posts')
 export class PostsController {
@@ -33,8 +36,8 @@ export class PostsController {
   }
 
   @Get('/:id')
-  async getPostByID(@Param('id') id) {
-    const post = await this.postService.getPostByID(id)
+  async getPostByID(@Param('id') id: string) {
+    const post = await this.postService.getPostByID(parseInt(id, 10))
 
     if (!post) {
       throw new NotFoundException()
@@ -46,33 +49,44 @@ export class PostsController {
   @UseGuards(JwtAuthGuard)
   @Post()
   @ApiBody({ type: [PostDto] })
-  createPost(@Body() post: PostDto, @Request() req) {
+  // @todo find out what type to use for req
+  createPost(@Body() post: PostDto, @Request() req: { user: BaseUserEntity }) {
     const user = req.user
     return this.postService.createPost(post, user)
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.USER, UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard)
   @Put('/:id')
   @ApiBody({ type: [PostDto] })
   async updatePost(
     @Param('id') id: number,
     @Body() post: PostDto,
-    @Request() req,
+    @Request() req: { user: BaseUserEntity },
   ) {
-    if (id != req.user.id && req.user.role !== UserRole.ADMIN) {
+    if (!verifyOwnUser(id, req.user)) {
       throw new ForbiddenException()
     }
+
     return await this.postService.updatePost(id, post)
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.USER, UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard)
   @Delete('/:id')
-  async deletePost(@Param('id') id: number, @Request() req) {
-    if (id != req.user.id && req.user.role !== UserRole.ADMIN) {
+  @HttpCode(204)
+  // @todo find out what type to use for req
+  async deletePost(
+    @Param('id') id: string,
+    @Request() req: { user: BaseUserEntity },
+  ) {
+    const idInt = parseInt(id, 10)
+    if (!verifyOwnUser(idInt, req.user)) {
       throw new ForbiddenException()
     }
-    return await this.postService.deletePost(id)
+
+    const deleteResult = await this.postService.deletePost(idInt)
+    if (deleteResult.affected === 0) {
+      // @todo maybe use 404 instead
+      throw new BadRequestException()
+    }
   }
 }

@@ -1,14 +1,17 @@
 import { UserEntity } from './Entities/UserEntity'
 import { CreateUserDataDto } from './Dto/CreateUserDataDto'
+import { DeleteResult } from 'typeorm'
 
 export interface IUsersRepository {
   save(userData: CreateUserDataDto): Promise<UserEntity>
 
   create(userData: CreateUserDataDto): UserEntity
 
-  findByEmail(username: string): Promise<UserEntity>
+  findByEmail(username: string): Promise<UserEntity | null>
 
-  find()
+  findById(id: string): Promise<UserEntity | null>
 
-  deleteById(id: number)
+  find(): Promise<UserEntity[]>
+
+  deleteById(id: number): Promise<DeleteResult>
 }

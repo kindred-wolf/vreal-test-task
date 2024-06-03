@@ -1,13 +1,11 @@
 import { InjectRepository } from '@nestjs/typeorm'
+import { Injectable } from '@nestjs/common'
 import { DeleteResult, Repository } from 'typeorm'
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common'
+
+import { UserEntity } from 'users/Entities/UserEntity'
+
 import { PostEntity } from './Entities/PostEntity'
 import { PostDto } from './DTO/PostDto'
-import { UserEntity } from 'src/users/Entities/UserEntity'
 
 @Injectable()
 export class PostsRepository {
@@ -16,37 +14,34 @@ export class PostsRepository {
     private readonly postsRepository: Repository<PostEntity>,
   ) {}
 
-  async getAllPosts(): Promise<PostEntity[] | undefined> {
+  async getAllPosts(): Promise<PostEntity[]> {
     return await this.postsRepository.find()
   }
 
-  async getAllUserPosts(userId: number): Promise<PostEntity[] | undefined> {
+  async getAllUserPosts(userId: number): Promise<PostEntity[]> {
     return await this.postsRepository.find({ where: { user: { id: userId } } })
   }
 
-  async getPostByID(id: number): Promise<PostEntity> {
+  async getPostByID(id: number): Promise<PostEntity | null> {
     const post = await this.postsRepository.findOne({
-      where: { id: id },
+      where: { id },
     })
 
     return post
   }
 
   async createPost(post: PostDto, user: UserEntity): Promise<PostEntity> {
-    const newPost = await this.postsRepository.create(post)
-    newPost.user = user
+    const newPost = await this.postsRepository.create({ ...post, user })
     await this.postsRepository.save(newPost)
     return newPost
   }
 
-  async updatePost(id: number, post: PostDto): Promise<PostEntity> {
+  async updatePost(id: number, post: PostDto): Promise<PostEntity | null> {
     await this.postsRepository.update(id, post)
     return await this.getPostByID(id)
   }
 
   async deletePost(id: number): Promise<DeleteResult> {
-    return await this.postsRepository.delete({
-      id: id,
-    })
+    return await this.postsRepository.delete({ id: id })
   }
 }

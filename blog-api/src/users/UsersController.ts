@@ -1,3 +1,4 @@
+import { ApiBody } from '@nestjs/swagger'
 import {
   Controller,
   Delete,
@@ -9,14 +10,15 @@ import {
   Body,
   ForbiddenException,
 } from '@nestjs/common'
-import { UsersService } from './UsersService'
-import { JwtAuthGuard } from 'src/common/guards/JwtAuthGuard'
-import { Roles } from 'src/common/decorators/RolesDecorator'
+import { JwtAuthGuard } from 'common/guards/JwtAuthGuard'
+import { RolesGuard } from 'common/guards/RolesGuard'
+import { Roles } from 'common/decorators/RolesDecorator'
+import { verifyOwnUser } from 'common/ownUserVerifier'
+
 import { UserRole } from './Entities/UserRoleEnum'
-import { RolesGuard } from 'src/common/guards/RolesGuard'
-import { CreateUserDataDto } from './Dto/CreateUserDataDto'
+import { UsersService } from './UsersService'
 import { UpdateUserDataDto } from './Dto/UpdateUserDataDto'
-import { ApiBody } from '@nestjs/swagger'
+import { BaseUserEntity } from './Entities/UserEntity'
 
 @Controller('users')
 export class UsersController {
@@ -25,32 +27,32 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @Get()
-  async getAllUsers() {
+  public async getAllUsers() {
     return await this.usersService.getUsers()
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.USER, UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
-  async getUserById(@Param('id') id: string, @Request() req) {
-    if (id != req.user.id && req.user.role !== UserRole.ADMIN) {
+  public async getUserById(
+    @Param('id') id: string,
+    // @todo find out what type to use for req
+    @Request() req: { user: BaseUserEntity },
+  ) {
+    if (!verifyOwnUser(parseInt(id, 10), req.user)) {
       throw new ForbiddenException()
     }
     return await this.usersService.getUserById(id)
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.USER, UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   @ApiBody({ type: [UpdateUserDataDto] })
-  async updateUser(
+  public async updateUser(
     @Param('id') id: string,
-    @Request() req,
+    @Request() req: { user: BaseUserEntity },
     @Body() updatedUser: UpdateUserDataDto,
   ) {
-    console.clear()
-    console.log('id: ' + id + '\nreq: ' + req.user.id)
-    if (id != req.user.id && req.user.role !== UserRole.ADMIN) {
+    if (!verifyOwnUser(parseInt(id, 10), req.user)) {
       throw new ForbiddenException()
     }
     return await this.usersService.updateUser(id, updatedUser)
@@ -58,14 +60,14 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Delete()
-  async deleteUser(@Request() req) {
+  public async deleteUser(@Request() req: { user: BaseUserEntity }) {
     return await this.usersService.deleteUserById(req.user.id)
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @Delete(':id')
-  async deleteUserById(@Param('id') id: number) {
+  public async deleteUserById(@Param('id') id: number) {
     return await this.usersService.deleteUserById(id)
   }
 }
