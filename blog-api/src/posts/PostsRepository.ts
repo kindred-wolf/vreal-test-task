@@ -30,6 +30,15 @@ export class PostsRepository {
     return post
   }
 
+  async getPostWithUser(id: number): Promise<PostEntity | null> {
+    const post = await this.postsRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.user', 'users')
+      .where('post.id = :id', { id })
+      .getOne()
+    return post
+  }
+
   async createPost(post: PostDto, user: UserEntity): Promise<PostEntity> {
     const newPost = await this.postsRepository.create({ ...post, user })
     await this.postsRepository.save(newPost)

@@ -22,6 +22,11 @@ export class PostsService {
     return post ?? null
   }
 
+  async getPostWithUser(id: number): Promise<PostEntity | null> {
+    const post = await this.postsRepository.getPostWithUser(id)
+    return post ?? null
+  }
+
   async createPost(post: PostDto, user: UserEntity): Promise<PostEntity> {
     return await this.postsRepository.createPost(post, user)
   }

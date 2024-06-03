@@ -22,6 +22,7 @@ import { PostsService } from './PostsService'
 import { PostDto } from './DTO/PostDto'
 import { verifyOwnUser } from 'common/ownUserVerifier'
 import { BaseUserEntity } from 'users/Entities/UserEntity'
+import { UserRole } from 'users/Entities/UserRoleEnum'
 
 @Controller('posts')
 export class PostsController {
@@ -59,15 +60,17 @@ export class PostsController {
   @Put('/:id')
   @ApiBody({ type: [PostDto] })
   async updatePost(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @Body() post: PostDto,
     @Request() req: { user: BaseUserEntity },
   ) {
-    if (!verifyOwnUser(id, req.user)) {
+    const idInt = parseInt(id, 10)
+    const search = await this.postService.getPostWithUser(idInt)
+    if (search?.user.id !== req.user.id && req.user.role !== UserRole.ADMIN) {
       throw new ForbiddenException()
     }
 
-    return await this.postService.updatePost(id, post)
+    return await this.postService.updatePost(idInt, post)
   }
 
   @UseGuards(JwtAuthGuard)
@@ -79,7 +82,8 @@ export class PostsController {
     @Request() req: { user: BaseUserEntity },
   ) {
     const idInt = parseInt(id, 10)
-    if (!verifyOwnUser(idInt, req.user)) {
+    const search = await this.postService.getPostWithUser(idInt)
+    if (search?.user.id !== req.user.id && req.user.role !== UserRole.ADMIN) {
       throw new ForbiddenException()
     }
 
